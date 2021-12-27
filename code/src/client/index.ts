@@ -1,19 +1,23 @@
-import { Client, Intents, Message, MessageEmbed } from 'discord.js';
+import { Client, Intents } from 'discord.js';
 import dotenv, { DotenvConfigOutput } from 'dotenv';
 
-import { messageCreate } from '../messageCreate'
-
+import { messageCreate } from '../messageCreate/command'
+// import Notice from '../messageCreate/notice';
 
 const ENV_CONFIG: DotenvConfigOutput = dotenv.config();
 const TOKEN: string = ENV_CONFIG?.parsed?.DISCORD_TOKEN ?? '';
 
 // create a new client instance ( SET INTENTS )
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client: Client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+// const notice: Notice = new Notice();
 
 export default function initClient(): void {
   client.on('ready', () => {
     console.log('Ready!');
     console.log(`Logged in as ${client?.user?.tag}`);
+
+    // notice.init(client)
+    // client.channels.cache.forEach(value => console.log(value))
   });
   
   client.on('messageCreate', messageCreate);
