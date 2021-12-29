@@ -1,6 +1,13 @@
 import { Client } from 'discord.js';
+import { everyHalfHourAlert } from './botAlert';
 
-const TARGET_MAIN_CHANNEL: string = '봇알림';
+const TARGET_MAIN_CHANNEL: string = '채팅 채널';
+const EVERY_DAY: { [key: string]: { name: string; message: string; type: string }} = {
+  FLAG: { name: '봇알림', message: 'FLAG TIME', type: 'HALF_HOUR_ALERT' },
+}
+const ALERT_FUNC: { [key: string]: Function } = {
+  'HALF_HOUR_ALERT': everyHalfHourAlert,
+}
 
 class Notice {
   static classInstance: Notice | undefined;
@@ -19,6 +26,7 @@ class Notice {
   init(client: Client): void {
     this.client = client;
     this.setChannelList(client);
+    this.runSchedule();
   }
 
   /**
@@ -57,11 +65,20 @@ class Notice {
       tempList[firstParentId].forEach((value: { id: string, name: string }) => {
         this.channelList[value.name] = { name: value.name, id: value.id };
       });
-      console.log('SET TARGE CHANNEL LIST: ', this.channelList);
+      console.log('NOTICE SET CHANNEL > ', this.channelList);
 
     } catch(e: any) {
-      console.error(e.toString());
+      console.error('NOTICE SET CHANNEL ERROR >', e.toString());
     }
+  }
+
+  runSchedule(): void {
+    Object.keys(EVERY_DAY).forEach((value: string): void => {
+      const { name, message, type } = EVERY_DAY[value];
+      const channelId: string = this.channelList[name]?.id ?? '';
+
+      ALERT_FUNC[type](this.client, name, channelId, message);
+    })
   }
 }
 
